@@ -1,23 +1,18 @@
 #include "socket.h"
+#include "socket_utils.h"
 #include "logger.h"
-
+#include "address.h"
+#include <utility>
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #undef ERROR
-using SocketType = SOCKET;
-#else
-#include <netinet/in.h>
-#include <sys/socket.h>
-using SocketType = int;
-#define INVALID_SOCKET (-1)
-#endif
+
 
 namespace TcFrame
 {
-#ifdef _WIN32
-
     // Windows下自动初始化/清理Winsock，程序启动自动执行，退出自动清理
+    // 静态全局变量，程序启动自动初始化，只初始化一次
     struct WinsockInitializer
     {
         WinsockInitializer()
@@ -37,11 +32,13 @@ namespace TcFrame
             LOG_INFO("Winsock cleanup complete");
         }
     };
-    // 静态全局变量，程序启动自动初始化，只初始化一次
     static WinsockInitializer g_winsock_initializer;
+}
 #endif
 
 
+namespace TcFrame
+{
     Socket::Socket(SocketType sockfd)
         : m_sockfd(sockfd)
     {
@@ -159,13 +156,14 @@ namespace TcFrame
         }
 
         socklen_t addr_len = peer_addr.GetSockLen();
-        SocketType client_fd = accept(m_sockfd, peer_addr.GetSockAddr(), &addr_len);
+        SocketType client_fd = accept(m_sockfd, peer_addr.GetMutableSockAddr(), &addr_len);
         if (client_fd == INVALID_SOCKET_VALUE)
         {
             int err_code = SocketUtils::GetLastError();
             LOG_ERROR("accept failed: " + SocketUtils::GetLastErrorStr(err_code));
             return nullptr;
         }
+        peer_addr.SetSockLen(addr_len);
 
         auto new_socket = std::make_unique<Socket>(client_fd);
         new_socket->SetNonBlocking(true); // 新连接默认非阻塞，适配Reactor事件驱动
@@ -251,7 +249,7 @@ namespace TcFrame
         if (IsValid())
         {
             SocketUtils::CloseSocket(m_sockfd);
-            LOG_INFO("socket closed, fd: " + std::to_string((int)m_sockfd));
+            LOG_DEBUG("socket closed, fd: " + std::to_string((int)m_sockfd));
             m_sockfd = INVALID_SOCKET_VALUE;
         }
     }
@@ -270,7 +268,35 @@ namespace TcFrame
             return Socket(INVALID_SOCKET_VALUE);
         }
         SocketUtils::SetNonBlocking(fd);
-        SocketUtils::SetReuseAddr(fd);
+        SocketUtils::SetReuseAddr(fd, true);
         return Socket(fd);
+    }
+
+    
+    Address Socket::GetLocalAddress() const
+    {
+        Address addr;
+        socklen_t len = addr.GetSockLen();
+        int ret = getsockname(m_sockfd, addr.GetMutableSockAddr(), &len);
+        if (ret != 0)
+        {
+            LOG_ERROR("Socket::GetLocalAddress failed, fd: " + std::to_string(static_cast<int>(m_sockfd)) + ", error: " + SocketUtils::GetLastErrorStr(SocketUtils::GetLastError()));
+        }
+        addr.SetSockLen(len);
+        return addr;
+    }
+
+  
+    Address Socket::GetPeerAddress() const
+    {
+        Address addr;
+        socklen_t len = addr.GetSockLen();
+        int ret = getpeername(m_sockfd, addr.GetMutableSockAddr(), &len);
+        if (ret != 0)
+        {
+            LOG_ERROR("Socket::GetPeerAddress failed, fd: " + std::to_string(static_cast<int>(m_sockfd)) + ", error: " + SocketUtils::GetLastErrorStr(SocketUtils::GetLastError()));
+        }
+        addr.SetSockLen(len);
+        return addr;
     }
 }
