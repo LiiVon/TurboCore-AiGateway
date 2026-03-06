@@ -7,11 +7,17 @@
 此项目为本人 学习C++服务器开发过程中的项目
 基础模块完成后，觉得单调，于是添加了分布式AI推理模块
 
-## 环境依赖
--第三方库：yaml 配置config需要 
-         Protobuf 3.10+（应该去掉强制Arena)  AiDist需要   
-         C:\Users\Lc_x7\vcpkg\vcpkg install protobuf:x64-windows --editable --cmake-args "-DPROTOBUF_FORCE_ARENA_ALLOCATION=OFF"
-
+环境依赖
+·
+C++17 及以上
+·
+CMake 3.10 及以上 (或Visual Studio 2022+)
+·
+yaml    (config 需要使用)
+·
+Protobuf 3.15 及以上（强制去除Arean限制)
+·
+Windows下推荐使用vcpkg管理依赖
 
 ## 代码整体框架
 
