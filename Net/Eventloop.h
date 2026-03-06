@@ -47,6 +47,9 @@ namespace TcFrame
         bool IsInLoopThread() const; // 判断当前调用线程是否是Loop所在线程
         void AssertInLoopThread(); // 断言必须在Loop线程，否则报错退出，调试用
 
+        std::thread& GetThread();
+        const std::thread& GetThread() const;
+
         // 获取当前线程的EventLoop，线程本地存储，没有返回nullptr
         static EventLoop* GetCurrentThreadEventLoop();
 
@@ -60,6 +63,8 @@ namespace TcFrame
 
         // 延迟delay_seconds秒后执行一次回调，线程安全
         void RunAfter(double delay_seconds, std::function<void()> cb);
+
+
 
     private:
         // 优先队列比较器：小顶堆，最早过期的排在最前面
