@@ -8,7 +8,9 @@
 基础模块完成后，觉得单调，于是添加了分布式AI推理模块
 
 ## 环境依赖
--第三方库：Protobuf 3.10+
+-第三方库：yaml 配置config需要 
+         Protobuf 3.10+（应该去掉强制Arena)  AiDist需要   
+         C:\Users\Lc_x7\vcpkg\vcpkg install protobuf:x64-windows --editable --cmake-args "-DPROTOBUF_FORCE_ARENA_ALLOCATION=OFF"
 
 
 ## 代码整体框架
