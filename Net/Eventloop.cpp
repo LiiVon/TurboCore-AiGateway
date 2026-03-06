@@ -313,6 +313,15 @@ namespace TcFrame
         }
     }
 
+    std::thread& EventLoop::GetThread()
+    {
+        return m_thread;
+    }
+    const std::thread& EventLoop::GetThread() const
+    {
+        return m_thread;
+    }
+
     EventLoop* EventLoop::GetCurrentThreadEventLoop()
     {
         return t_currentThreadLoop;
