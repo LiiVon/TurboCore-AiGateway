@@ -11,7 +11,6 @@
 -第三方库：Protobuf 3.10+
 
 
----
 ## 代码整体框架
 
 TurboCore 是基于One Loop Per Thread Reactor 模式设计的C++高性能异步服务器框架，上层扩展了AI分布式推理网关能力。框架从下到上分为「基础工具层、核心网络层、业务网关层」三个层次，每个类职责单一，封装清晰，方便扩展。
@@ -61,6 +60,3 @@ TurboCore 是基于One Loop Per Thread Reactor 模式设计的C++高性能异步
 3.  **推理请求阶段**：业务方给`InferenceGateway`发推理请求，`InferenceGateway`调用`DistServer::SelectWorkerForModel`，根据模型名+版本，遍历所有存活Worker，选pending任务最少的节点，然后把推理请求转发给对应Worker。
 4.  **IO处理阶段**：Worker返回推理结果，`TcpConnection`读到数据存入`Buffer`，`ProtocolCodec`从`Buffer`里拆出完整Protobuf消息，回调`DistServer`的`OnInferenceResponse`，`DistServer`再透传给`InferenceGateway`，`InferenceGateway`把结果返回给业务方。
 5.  **心跳保活**：Worker定期给`DistServer`发心跳，带上当前pending任务数和空闲内存，`DistServer`更新`WorkerInfo`的负载信息和心跳时间；超过心跳超时的Worker会被自动清理，下线通知上层回调。
-
----
-这样在GitHub上渲染出来就是：表格对齐清晰、接口代码自动高亮、分模块层次分明，你直接复制这段到你的README.md就可以用，不需要任何修改✨
