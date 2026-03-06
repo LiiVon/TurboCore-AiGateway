@@ -89,10 +89,10 @@ namespace TcFrame
 	public:
 		virtual ~LogWriter() = default;
 		virtual void Debug(const std::string& content) = 0;
-		virtual void Info(const std::string content) = 0;
-		virtual void Warn(const std::string content) = 0;
-		virtual void Error(const std::string content) = 0;
-		virtual void Fatal(const std::string content) = 0;
+		virtual void Info(const std::string& content) = 0;
+		virtual void Warn(const std::string& content) = 0;
+		virtual void Error(const std::string& content) = 0;
+		virtual void Fatal(const std::string& content) = 0;
 	};
 
 	// 日志管理器：单例，全局唯一
@@ -112,10 +112,10 @@ namespace TcFrame
 
 		// 实现LogWriter接口
 		void Debug(const std::string& content) override;
-		void Info(const std::string content) override;
-		void Warn(const std::string content) override;
-		void Error(const std::string content) override;
-		void Fatal(const std::string content) override;
+		void Info(const std::string& content) override;
+		void Warn(const std::string& content) override;
+		void Error(const std::string& content) override;
+		void Fatal(const std::string& content) override;
 
 	private:
 		Logger();
